@@ -1,10 +1,11 @@
 import initialTeachersData from '../data/teachers.json';
 
-const STORAGE_KEY = 'volunteer_leaderboard_data_v3';
+const STORAGE_KEY = 'volunteer_leaderboard_data_v4';
 
 // Helper to calculate total hours dynamically
 export const calculateTotal = (projects) => {
-  return Object.values(projects || {}).reduce((sum, val) => sum + (parseFloat(val) || 0), 0);
+  const total = Object.values(projects || {}).reduce((sum, val) => sum + (parseFloat(val) || 0), 0);
+  return Math.round(total * 100) / 100;
 };
 
 export const getTeachersData = () => {

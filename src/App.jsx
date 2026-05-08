@@ -69,7 +69,7 @@ function App() {
         const newHistory = (t.history || []).filter(e => e.timestamp !== entry.timestamp);
         const newProjects = {};
         newHistory.forEach(h => {
-          newProjects[h.project] = (newProjects[h.project] || 0) + h.hours;
+          newProjects[h.project] = Math.round(((newProjects[h.project] || 0) + h.hours) * 100) / 100;
         });
         return { ...t, history: newHistory, projects: newProjects };
       }
@@ -118,10 +118,10 @@ function App() {
       };
       teacher.history = [...(teacher.history || []), historyEntry];
       
-      // Sync project totals
+      // Recalculate project totals with precision protection
       const newProjects = {};
       teacher.history.forEach(h => {
-        newProjects[h.project] = (newProjects[h.project] || 0) + h.hours;
+        newProjects[h.project] = Math.round(((newProjects[h.project] || 0) + h.hours) * 100) / 100;
       });
       teacher.projects = newProjects;
       newTeachers[targetIndex] = teacher;

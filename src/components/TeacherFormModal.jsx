@@ -32,7 +32,7 @@ export default function TeacherFormModal({ isOpen, onClose, onSubmit, initialDat
       let diffMinutes = (endH * 60 + endM) - (startH * 60 + startM);
       if (diffMinutes < 0) diffMinutes += 24 * 60; // Handle overnight if needed
       
-      const hours = Math.round((diffMinutes / 60) * 10) / 10; // Round to 1 decimal
+      const hours = Math.round((diffMinutes / 60) * 100) / 100; // Round to 2 decimals for precision
       setCalculatedHours(hours);
     }
   }, [startTime, endTime]);

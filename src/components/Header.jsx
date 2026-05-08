@@ -1,38 +1,72 @@
-import { Award, Sparkles } from 'lucide-react';
+import React from 'react';
+import logo from '../figures/logo.jpg';
+import { Sparkles } from 'lucide-react';
 
 export default function Header() {
   return (
-    <header style={{ marginBottom: '3.5rem', textAlign: 'center' }} className="animate-fade-in">
+    <header style={{ marginBottom: '5rem', textAlign: 'center' }} className="animate-fade-in">
       <div style={{ 
         display: 'inline-flex', 
         alignItems: 'center', 
-        justifyContent: 'center', 
-        gap: '0.75rem', 
-        marginBottom: '1rem',
-        padding: '0.4rem 1.2rem',
-        background: 'var(--primary-light)',
+        gap: '0.6rem', 
+        backgroundColor: 'rgba(59, 130, 246, 0.08)', 
+        padding: '6px 16px', 
         borderRadius: '100px',
-        border: '1px solid rgba(59, 130, 246, 0.2)'
+        color: 'var(--primary)',
+        fontSize: '0.75rem',
+        fontWeight: '700',
+        letterSpacing: '0.08em',
+        marginBottom: '2rem',
+        border: '1px solid rgba(59, 130, 246, 0.1)'
       }}>
-        <Award size={18} color="var(--primary)" />
-        <span style={{ color: 'var(--primary)', fontWeight: '700', fontSize: '0.85rem', letterSpacing: '0.1em' }}>
-          VOLUNTEER HONOR ROLL
-        </span>
-        <Sparkles size={14} color="var(--primary)" />
+        <span style={{ fontSize: '1rem' }}>💡</span> VOLUNTEER HONOR ROLL
       </div>
-      <h1 style={{ 
-        fontSize: '3.5rem', 
-        fontWeight: '800', 
-        color: 'var(--text-primary)',
-        marginBottom: '0.75rem',
-        lineHeight: '1.1',
-        letterSpacing: '-0.04em'
-      }}>
-        教师志愿时长榜单
-      </h1>
-      <p style={{ color: 'var(--text-secondary)', fontSize: '1.15rem', fontWeight: '400', maxWidth: '600px', margin: '0 auto' }}>
-        记录每一次微小的奉献，致敬教育路上的志愿之光
-      </p>
+      
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
+        <div style={{
+          background: 'white',
+          padding: '12px',
+          borderRadius: '24px',
+          boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '1px solid rgba(0,0,0,0.02)'
+        }}>
+          <img 
+            src={logo} 
+            alt="Logo" 
+            style={{ 
+              height: '7.5rem', 
+              width: 'auto', 
+              borderRadius: '16px'
+            }} 
+          />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'left' }}>
+          <h1 style={{ 
+            fontSize: '3.8rem', 
+            fontWeight: '900', 
+            color: 'var(--text-primary)',
+            letterSpacing: '-0.03em',
+            lineHeight: '1',
+            margin: 0
+          }}>
+            教师志愿时长榜单
+          </h1>
+          <p style={{ 
+            color: 'var(--text-secondary)', 
+            fontSize: '1.2rem', 
+            marginTop: '0.6rem', 
+            fontWeight: '500',
+            opacity: 0.7,
+            margin: '0.6rem 0 0 0',
+            letterSpacing: '0.02em'
+          }}>
+            记录每一次微小的奉献，致敬教育路上的志愿之光
+          </p>
+        </div>
+      </div>
     </header>
   );
 }
