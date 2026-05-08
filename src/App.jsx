@@ -6,11 +6,12 @@ import VolunteerChart from './components/VolunteerChart';
 import TeacherFormModal from './components/TeacherFormModal';
 import HistoryModal from './components/HistoryModal';
 import RecentUpdates from './components/RecentUpdates';
-import { getTeachersData, saveTeachersData, getAllProjectNames, calculateTotal, addChangelogEntry, recalculateProjects } from './utils/storage';
+import { getTeachersData, saveTeachersData, getAllProjectNames, calculateTotal, addChangelogEntry, recalculateProjects, getProjects, saveProjects } from './utils/storage';
 import { Plus } from 'lucide-react';
 
 function App() {
   const [teachers, setTeachers] = useState([]);
+  const [serverProjects, setServerProjects] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState(null);
@@ -21,29 +22,25 @@ function App() {
 
   useEffect(() => {
     let isActive = true;
-    const loadTeachers = async () => {
-      const data = await getTeachersData();
+    const load = async () => {
+      const [data, projects] = await Promise.all([getTeachersData(), getProjects()]);
       if (isActive) {
         setTeachers(data);
+        setServerProjects(projects);
         setIsLoaded(true);
       }
     };
 
-    loadTeachers();
-    return () => {
-      isActive = false;
-    };
+    load();
+    return () => { isActive = false; };
   }, []);
 
   useEffect(() => {
-    if (!isLoaded) {
-      return;
-    }
-
+    if (!isLoaded) return;
     saveTeachersData(teachers);
   }, [teachers, isLoaded]);
 
-  const projectNames = useMemo(() => getAllProjectNames(teachers), [teachers]);
+  const projectNames = useMemo(() => getAllProjectNames(teachers, serverProjects), [teachers, serverProjects]);
 
   const processedData = useMemo(() => {
     const filtered = teachers.filter(t =>
@@ -105,9 +102,7 @@ function App() {
       .map((entryName) => entryName.trim())
       .filter((entryName) => entryName.length > 0);
 
-    if (selectedNames.length === 0) {
-      return;
-    }
+    if (selectedNames.length === 0) return;
 
     let newTeachers = [...teachers];
 
@@ -183,6 +178,48 @@ function App() {
     }
   };
 
+  const handleAddTeacherName = (name) => {
+    if (teachers.some(t => t.name.trim() === name.trim())) return;
+    const newTeacher = { id: Date.now().toString(), name: name.trim(), projects: {}, history: [] };
+    setTeachers(prev => [...prev, newTeacher]);
+    addChangelogEntry({ action: 'add_teacher', description: `新增教师 ${name.trim()}` });
+    setChangelogKey(k => k + 1);
+  };
+
+  const handleDeleteTeacherName = (name) => {
+    if (!window.confirm(`确定要删除教师「${name}」吗？`)) return;
+    setTeachers(prev => prev.filter(t => t.name.trim() !== name.trim()));
+    addChangelogEntry({ action: 'delete', description: `删除了教师 ${name}` });
+    setChangelogKey(k => k + 1);
+  };
+
+  const handleAddProject = (name) => {
+    const trimmed = name.trim();
+    if (!trimmed || serverProjects.includes(trimmed)) return;
+    const updated = [...serverProjects, trimmed];
+    setServerProjects(updated);
+    saveProjects(updated);
+    addChangelogEntry({ action: 'add', description: `新增项目「${trimmed}」` });
+    setChangelogKey(k => k + 1);
+  };
+
+  const handleDeleteProject = (name) => {
+    if (!window.confirm(`确定要删除项目「${name}」吗？将清除所有教师中该项目的数据。`)) return;
+    const updatedProjects = serverProjects.filter(p => p !== name);
+    setServerProjects(updatedProjects);
+    saveProjects(updatedProjects);
+
+    const updatedTeachers = teachers.map(t => {
+      const newHistory = (t.history || []).filter(h => h.project !== name);
+      const newProjects = recalculateProjects(newHistory);
+      return { ...t, history: newHistory, projects: newProjects };
+    }).filter(t => Object.keys(t.projects).length > 0 || t.history?.length > 0);
+
+    setTeachers(updatedTeachers);
+    addChangelogEntry({ action: 'delete', description: `删除了项目「${name}」` });
+    setChangelogKey(k => k + 1);
+  };
+
   return (
     <div className="app-wrapper">
       <div className="aspect-ratio-container">
@@ -225,6 +262,10 @@ function App() {
         projectNames={projectNames}
         teachers={teachers}
         isEditingEntry={!!editingEntry}
+        onAddTeacher={handleAddTeacherName}
+        onDeleteTeacher={handleDeleteTeacherName}
+        onAddProject={handleAddProject}
+        onDeleteProject={handleDeleteProject}
       />
 
       <HistoryModal

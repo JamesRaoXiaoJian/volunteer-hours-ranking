@@ -78,11 +78,12 @@ export const saveTeachersData = async (data) => {
   }
 };
 
-export const getAllProjectNames = (data) => {
-  const projectNames = new Set([
-    '硕士复试', '调剂复试名单遴选', '硕士调剂复试', '培养方案和品牌专业讨论',
-    '学院十五五规划讨论', '人机协作观摩课', '中心建设会议', '本科转专业面试'
-  ]);
+export const getAllProjectNames = (data, serverProjects) => {
+  const projectNames = new Set();
+
+  if (Array.isArray(serverProjects)) {
+    serverProjects.forEach(p => projectNames.add(p));
+  }
 
   if (Array.isArray(data)) {
     data.forEach(teacher => {
@@ -95,6 +96,29 @@ export const getAllProjectNames = (data) => {
     });
   }
   return Array.from(projectNames);
+};
+
+export const getProjects = async () => {
+  try {
+    const response = await fetch(`${API_BASE}/api/projects`);
+    if (!response.ok) return [];
+    return await response.json();
+  } catch {
+    return [];
+  }
+};
+
+export const saveProjects = async (data) => {
+  if (!Array.isArray(data)) return;
+  try {
+    await fetch(`${API_BASE}/api/projects`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  } catch (error) {
+    console.error('Failed to save projects.', error);
+  }
 };
 
 export const getChangelog = async () => {

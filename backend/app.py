@@ -10,6 +10,7 @@ from flask import Flask, jsonify, request
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), "teachers.json")
 CHANGELOG_FILE = os.path.join(os.path.dirname(__file__), "changelog.json")
+PROJECTS_FILE = os.path.join(os.path.dirname(__file__), "projects.json")
 DATA_LOCK = threading.Lock()
 
 app = Flask(__name__)
@@ -74,6 +75,37 @@ def save_teachers():
     with DATA_LOCK:
         _save_data(payload)
 
+    return jsonify({"status": "ok"})
+
+
+def _load_projects() -> list:
+    if not os.path.exists(PROJECTS_FILE):
+        return []
+    try:
+        with open(PROJECTS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, ValueError):
+        return []
+
+
+def _save_projects(data: list) -> None:
+    with open(PROJECTS_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+@app.route("/api/projects", methods=["GET"])
+def get_projects():
+    with DATA_LOCK:
+        return jsonify(_load_projects())
+
+
+@app.route("/api/projects", methods=["PUT"])
+def save_projects():
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, list):
+        return jsonify({"error": "projects_must_be_array"}), 400
+    with DATA_LOCK:
+        _save_projects(payload)
     return jsonify({"status": "ok"})
 
 
