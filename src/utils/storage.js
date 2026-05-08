@@ -1,6 +1,6 @@
-import initialTeachersData from '../data/teachers.json';
-
-const STORAGE_KEY = 'volunteer_leaderboard_data_v4';
+const API_BASE = import.meta.env.DEV
+  ? 'http://localhost:3000'
+  : (import.meta.env.VITE_API_BASE || 'https://ipclab.cloud');
 
 // Helper to calculate total hours dynamically
 export const calculateTotal = (projects) => {
@@ -8,25 +8,12 @@ export const calculateTotal = (projects) => {
   return Math.round(total * 100) / 100;
 };
 
-export const getTeachersData = () => {
-  const localData = localStorage.getItem(STORAGE_KEY);
-  let finalData = initialTeachersData;
-
-  if (localData) {
-    try {
-      const parsed = JSON.parse(localData);
-      // Only use local data if it's a non-empty array
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        finalData = parsed;
-      }
-    } catch (e) {
-      console.error("Failed to parse local storage data, falling back to JSON file.", e);
-      finalData = initialTeachersData;
-    }
+const normalizeTeachers = (data) => {
+  if (!Array.isArray(data)) {
+    return [];
   }
 
-  // Final check: Ensure history and projects are synced
-  return finalData.map(teacher => {
+  return data.map(teacher => {
     if ((!teacher.history || teacher.history.length === 0) && Object.keys(teacher.projects || {}).length > 0) {
       const history = Object.entries(teacher.projects).map(([project, hours]) => ({
         date: new Date().toISOString().split('T')[0],
@@ -40,9 +27,35 @@ export const getTeachersData = () => {
   });
 };
 
-export const saveTeachersData = (data) => {
-  if (Array.isArray(data) && data.length > 0) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+export const getTeachersData = async () => {
+  try {
+    const response = await fetch(`${API_BASE}/api/teachers`);
+    if (!response.ok) {
+      throw new Error(`Failed to load teachers: ${response.status}`);
+    }
+    const data = await response.json();
+    return normalizeTeachers(data);
+  } catch (error) {
+    console.error('Failed to fetch teachers data from backend.', error);
+    return [];
+  }
+};
+
+export const saveTeachersData = async (data) => {
+  if (!Array.isArray(data)) {
+    return;
+  }
+
+  try {
+    await fetch(`${API_BASE}/api/teachers`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+  } catch (error) {
+    console.error('Failed to save teachers data to backend.', error);
   }
 };
 

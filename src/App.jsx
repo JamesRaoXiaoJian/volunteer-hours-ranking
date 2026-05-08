@@ -15,14 +15,31 @@ function App() {
   const [editingTeacher, setEditingTeacher] = useState(null);
   const [editingEntry, setEditingEntry] = useState(null);
   const [selectedTeacherHistory, setSelectedTeacherHistory] = useState(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    setTeachers(getTeachersData());
+    let isActive = true;
+    const loadTeachers = async () => {
+      const data = await getTeachersData();
+      if (isActive) {
+        setTeachers(data);
+        setIsLoaded(true);
+      }
+    };
+
+    loadTeachers();
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   useEffect(() => {
+    if (!isLoaded) {
+      return;
+    }
+
     saveTeachersData(teachers);
-  }, [teachers]);
+  }, [teachers, isLoaded]);
 
   const projectNames = useMemo(() => getAllProjectNames(teachers), [teachers]);
 
