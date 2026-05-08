@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "a1",
+      "name": "Alice",
+      "hours": 6,
+      "note": "Registration desk",
+      "created_at": "2024-01-01T00:00:00+00:00",
+      "updated_at": "2024-01-01T00:00:00+00:00"
+    },
+    {
+      "id": "b2",
+      "name": "Bob",
+      "hours": 4,
+      "note": "Food delivery",
+      "created_at": "2024-01-01T00:00:00+00:00",
+      "updated_at": "2024-01-01T00:00:00+00:00"
+    },
+    {
+      "id": "c3",
+      "name": "Cathy",
+      "hours": 8,
+      "note": "Logistics",
+      "created_at": "2024-01-01T00:00:00+00:00",
+      "updated_at": "2024-01-01T00:00:00+00:00"
+    }
+  ]
+}
