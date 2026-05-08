@@ -74,8 +74,11 @@ def save_teachers():
 def _load_changelog() -> list:
     if not os.path.exists(CHANGELOG_FILE):
         return []
-    with open(CHANGELOG_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        with open(CHANGELOG_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, ValueError):
+        return []
 
 
 def _save_changelog(data: list) -> None:
