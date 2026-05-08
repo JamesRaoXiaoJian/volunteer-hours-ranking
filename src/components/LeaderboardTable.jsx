@@ -131,14 +131,14 @@ export default function LeaderboardTable({ data, onEdit, onDelete, onViewHistory
 
   return (
     <div className="card animate-fade-in" style={{ overflow: 'hidden', border: 'none', background: 'rgba(255, 255, 255, 0.4)' }}>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+      <div className="table-scroll" style={{ overflowX: 'auto' }}>
+        <table className="leaderboard-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.02)' }}>
               <th style={{ padding: '1.25rem 1.5rem', fontWeight: '700', color: 'var(--text-secondary)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>排名</th>
               <th style={{ padding: '1.25rem 1.5rem', fontWeight: '700', color: 'var(--text-secondary)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>姓名</th>
               <th style={{ padding: '1.25rem 1.5rem', fontWeight: '700', color: 'var(--text-secondary)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>参与项目详情</th>
-              <th style={{ padding: '1.25rem 1.5rem', fontWeight: '700', color: 'var(--text-secondary)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>总志愿时长</th>
+              <th style={{ padding: '1.25rem 1.5rem', fontWeight: '700', color: 'var(--text-secondary)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>总服务时长</th>
               <th style={{ padding: '1.25rem 1.5rem', fontWeight: '700', color: 'var(--text-secondary)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'right' }}>操作</th>
             </tr>
           </thead>

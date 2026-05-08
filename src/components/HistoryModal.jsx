@@ -16,7 +16,7 @@ export default function HistoryModal({ isOpen, onClose, teacher, onEditEntry, on
       zIndex: 1100,
       padding: '1.5rem'
     }}>
-      <div className="card animate-modal" style={{ 
+      <div className="card animate-modal history-modal" style={{ 
         width: '100%', 
         maxWidth: '700px', 
         backgroundColor: 'rgba(255, 255, 255, 0.98)', 
@@ -35,7 +35,7 @@ export default function HistoryModal({ isOpen, onClose, teacher, onEditEntry, on
         }}>
           <div>
             <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)' }}>
-              志愿明细记录
+              服务明细记录
             </h2>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
               教师：<span style={{ fontWeight: '700', color: 'var(--primary)' }}>{teacher.name}</span>

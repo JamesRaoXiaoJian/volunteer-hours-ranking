@@ -4,7 +4,7 @@ import { Sparkles } from 'lucide-react';
 
 export default function Header() {
   return (
-    <header style={{ marginBottom: '5rem', textAlign: 'center' }} className="animate-fade-in">
+    <header style={{ marginBottom: '5rem', textAlign: 'center' }} className="header-root animate-fade-in">
       <div style={{ 
         display: 'inline-flex', 
         alignItems: 'center', 
@@ -22,8 +22,8 @@ export default function Header() {
         <span style={{ fontSize: '1rem' }}>💡</span> VOLUNTEER HONOR ROLL
       </div>
       
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
-        <div style={{
+      <div className="header-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
+        <div className="header-logo" style={{
           background: 'white',
           padding: '12px',
           borderRadius: '24px',
@@ -43,7 +43,7 @@ export default function Header() {
             }} 
           />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'left' }}>
+        <div className="header-text" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'left' }}>
           <h1 style={{ 
             fontSize: '3.8rem', 
             fontWeight: '900', 
@@ -52,7 +52,7 @@ export default function Header() {
             lineHeight: '1',
             margin: 0
           }}>
-            教师志愿时长榜单
+            教师服务时长榜单
           </h1>
           <p style={{ 
             color: 'var(--text-secondary)', 
@@ -63,7 +63,7 @@ export default function Header() {
             margin: '0.6rem 0 0 0',
             letterSpacing: '0.02em'
           }}>
-            记录每一次微小的奉献，致敬教育路上的志愿之光
+            聚合，配合，竞合，融合
           </p>
         </div>
       </div>

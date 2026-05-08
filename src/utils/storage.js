@@ -1,6 +1,7 @@
 const API_BASE = import.meta.env.DEV
   ? 'http://localhost:3000'
   : (import.meta.env.VITE_API_BASE || 'https://ipclab.cloud');
+const BACKUP_URL = `${import.meta.env.BASE_URL}teachers.backup.json`;
 
 // Helper to calculate total hours dynamically
 export const calculateTotal = (projects) => {
@@ -37,7 +38,17 @@ export const getTeachersData = async () => {
     return normalizeTeachers(data);
   } catch (error) {
     console.error('Failed to fetch teachers data from backend.', error);
-    return [];
+    try {
+      const backupResponse = await fetch(BACKUP_URL, { cache: 'no-cache' });
+      if (!backupResponse.ok) {
+        throw new Error(`Failed to load backup: ${backupResponse.status}`);
+      }
+      const backupData = await backupResponse.json();
+      return normalizeTeachers(backupData);
+    } catch (backupError) {
+      console.error('Failed to fetch teachers backup data.', backupError);
+      return [];
+    }
   }
 };
 

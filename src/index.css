@@ -88,6 +88,54 @@ body {
   .content-scrollable {
     padding: 1.5rem !important;
   }
+
+  .header-root {
+    margin-bottom: 2.5rem !important;
+  }
+
+  .header-row {
+    flex-direction: column !important;
+    gap: 1.5rem !important;
+  }
+
+  .header-logo img {
+    height: 5.5rem !important;
+  }
+
+  .header-text {
+    text-align: center !important;
+  }
+
+  .toolbar-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .teacher-modal {
+    max-width: 100% !important;
+  }
+
+  .teacher-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .teacher-checkbox-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+  }
+
+  .history-modal {
+    max-width: 100% !important;
+    max-height: 90vh !important;
+  }
+
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 0.75rem 0.75rem !important;
+  }
+
+  .leaderboard-table th {
+    font-size: 0.7rem !important;
+  }
 }
 
 .content-scrollable {

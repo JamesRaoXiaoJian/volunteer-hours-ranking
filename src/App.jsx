@@ -100,8 +100,14 @@ function App() {
   };
 
   const handleModalSubmit = (formData) => {
-    const { name, projectName, hours, date } = formData;
-    const trimmedName = name.trim();
+    const { names, projectName, hours, date } = formData;
+    const selectedNames = (Array.isArray(names) ? names : [])
+      .map((entryName) => entryName.trim())
+      .filter((entryName) => entryName.length > 0);
+
+    if (selectedNames.length === 0) {
+      return;
+    }
     
     let newTeachers = [...teachers];
 
@@ -122,40 +128,43 @@ function App() {
       }
     }
 
-    // Now insert the record (either new or edited) to the target teacher
-    const targetIndex = newTeachers.findIndex(t => t.name.trim() === trimmedName);
-    
-    if (targetIndex > -1) {
-      const teacher = { ...newTeachers[targetIndex] };
-      const historyEntry = {
-        date,
-        project: projectName,
-        hours,
-        timestamp: editingEntry ? editingEntry.timestamp : new Date().getTime()
-      };
-      teacher.history = [...(teacher.history || []), historyEntry];
-      
-      // Recalculate project totals with precision protection
-      const newProjects = {};
-      teacher.history.forEach(h => {
-        newProjects[h.project] = Math.round(((newProjects[h.project] || 0) + h.hours) * 100) / 100;
-      });
-      teacher.projects = newProjects;
-      newTeachers[targetIndex] = teacher;
-    } else {
-      const newTeacher = {
-        id: Date.now().toString(),
-        name: trimmedName,
-        projects: { [projectName]: hours },
-        history: [{
+    // Now insert the record (either new or edited) to the target teacher(s)
+    const timestampBase = editingEntry ? editingEntry.timestamp : new Date().getTime();
+    selectedNames.forEach((selectedName, idx) => {
+      const targetIndex = newTeachers.findIndex(t => t.name.trim() === selectedName);
+
+      if (targetIndex > -1) {
+        const teacher = { ...newTeachers[targetIndex] };
+        const historyEntry = {
           date,
           project: projectName,
           hours,
-          timestamp: editingEntry ? editingEntry.timestamp : new Date().getTime()
-        }]
-      };
-      newTeachers.push(newTeacher);
-    }
+          timestamp: editingEntry ? timestampBase : timestampBase + idx
+        };
+        teacher.history = [...(teacher.history || []), historyEntry];
+        
+        // Recalculate project totals with precision protection
+        const newProjects = {};
+        teacher.history.forEach(h => {
+          newProjects[h.project] = Math.round(((newProjects[h.project] || 0) + h.hours) * 100) / 100;
+        });
+        teacher.projects = newProjects;
+        newTeachers[targetIndex] = teacher;
+      } else {
+        const newTeacher = {
+          id: (Date.now() + idx).toString(),
+          name: selectedName,
+          projects: { [projectName]: hours },
+          history: [{
+            date,
+            project: projectName,
+            hours,
+            timestamp: editingEntry ? timestampBase : timestampBase + idx
+          }]
+        };
+        newTeachers.push(newTeacher);
+      }
+    });
 
     // Clean up empty teachers (if their last entry was moved or deleted)
     newTeachers = newTeachers.filter(t => Object.keys(t.projects).length > 0 || t.history?.length > 0);
@@ -177,7 +186,7 @@ function App() {
         <div className="content-scrollable">
           <Header />
           
-          <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2.5rem', alignItems: 'center' }}>
+          <div className="toolbar-row" style={{ display: 'flex', gap: '1.5rem', marginBottom: '2.5rem', alignItems: 'center' }}>
             <div style={{ flex: 1 }}>
               <SearchBar value={searchQuery} onChange={setSearchQuery} />
             </div>
@@ -209,6 +218,8 @@ function App() {
         onSubmit={handleModalSubmit}
         initialData={editingTeacher}
         projectNames={projectNames}
+        teachers={teachers}
+        isEditingEntry={!!editingEntry}
       />
 
       <HistoryModal 

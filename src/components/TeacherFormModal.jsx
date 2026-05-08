@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { X, Clock } from 'lucide-react';
 
-export default function TeacherFormModal({ isOpen, onClose, onSubmit, initialData, projectNames }) {
-  const [name, setName] = useState('');
+export default function TeacherFormModal({ isOpen, onClose, onSubmit, initialData, projectNames, teachers, isEditingEntry }) {
+  const [selectedNames, setSelectedNames] = useState([]);
   const [selectedProject, setSelectedProject] = useState('');
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('11:00');
@@ -10,13 +10,19 @@ export default function TeacherFormModal({ isOpen, onClose, onSubmit, initialDat
   const [showNewProjectInput, setShowNewProjectInput] = useState(false);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
+  const teacherOptions = useMemo(() => {
+    return (teachers || [])
+      .map((teacher) => teacher.name)
+      .filter((name) => typeof name === 'string' && name.trim().length > 0);
+  }, [teachers]);
+
   useEffect(() => {
     if (initialData) {
-      setName(initialData.name || '');
+      setSelectedNames(initialData.name ? [initialData.name] : []);
       setSelectedProject(initialData.project || projectNames[0] || '');
       setDate(initialData.date || new Date().toISOString().split('T')[0]);
     } else {
-      setName('');
+      setSelectedNames([]);
       setSelectedProject(projectNames[0] || '');
       setDate(new Date().toISOString().split('T')[0]);
     }
@@ -41,12 +47,16 @@ export default function TeacherFormModal({ isOpen, onClose, onSubmit, initialDat
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name || !selectedProject || calculatedHours <= 0) return;
+    if (!selectedNames.length || !selectedProject || calculatedHours <= 0) return;
+    if (isEditingEntry && selectedNames.length !== 1) {
+      window.alert('编辑记录时只能选择一个教师。');
+      return;
+    }
 
     // Send back data to App.jsx
     // Note: App.jsx handles merging into the teacher's projects object
     onSubmit({
-      name,
+      names: selectedNames,
       projectName: selectedProject,
       hours: calculatedHours,
       date: date
@@ -65,7 +75,7 @@ export default function TeacherFormModal({ isOpen, onClose, onSubmit, initialDat
       zIndex: 1000,
       padding: '1.5rem'
     }}>
-      <div className="card animate-modal" style={{ 
+      <div className="card animate-modal teacher-modal" style={{ 
         width: '100%', 
         maxWidth: '540px', 
         backgroundColor: 'rgba(255, 255, 255, 0.95)', 
@@ -80,7 +90,7 @@ export default function TeacherFormModal({ isOpen, onClose, onSubmit, initialDat
           display: 'flex', justifyContent: 'space-between', alignItems: 'center'
         }}>
           <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)' }}>
-            录入志愿时长
+            录入服务时长
           </h2>
           <button type="button" className="btn-icon" onClick={onClose} style={{ background: 'var(--bg-app)' }}>
             <X size={20} />
@@ -88,18 +98,47 @@ export default function TeacherFormModal({ isOpen, onClose, onSubmit, initialDat
         </div>
         
         <form onSubmit={handleSubmit} style={{ padding: '2rem' }}>
-          {/* Row 1: Name & Date */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+          {/* Row 1: Teacher Selection & Date */}
+          <div className="teacher-row" style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.6rem', fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-secondary)' }}>姓名</label>
-              <input 
-                required
-                type="text" 
-                className="input" 
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="教师姓名"
-              />
+              <label style={{ display: 'block', marginBottom: '0.6rem', fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-secondary)' }}>选择教师</label>
+              {teacherOptions.length === 0 ? (
+                <div style={{ padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-app)', color: 'var(--text-muted)', border: '1px solid var(--border-color)' }}>
+                  暂无教师数据
+                </div>
+              ) : (
+                <div className="teacher-checkbox-grid" style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+                  gap: '0.75rem',
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  padding: '0.75rem',
+                  background: 'var(--bg-app)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: 'var(--radius-md)'
+                }}>
+                  {teacherOptions.map((teacherName) => {
+                    const isChecked = selectedNames.includes(teacherName);
+                    return (
+                      <label key={teacherName} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', color: 'var(--text-primary)' }}>
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedNames((prev) => Array.from(new Set([...prev, teacherName])));
+                            } else {
+                              setSelectedNames((prev) => prev.filter((name) => name !== teacherName));
+                            }
+                          }}
+                        />
+                        {teacherName}
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
             </div>
             <div>
               <label style={{ display: 'block', marginBottom: '0.6rem', fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-secondary)' }}>日期</label>
