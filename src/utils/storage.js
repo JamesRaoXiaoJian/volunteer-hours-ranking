@@ -9,6 +9,14 @@ export const calculateTotal = (projects) => {
   return Math.round(total * 100) / 100;
 };
 
+export const recalculateProjects = (history) => {
+  const projects = {};
+  (history || []).forEach(h => {
+    projects[h.project] = Math.round(((projects[h.project] || 0) + h.hours) * 100) / 100;
+  });
+  return projects;
+};
+
 const normalizeTeachers = (data) => {
   if (!Array.isArray(data)) {
     return [];

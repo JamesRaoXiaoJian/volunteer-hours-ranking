@@ -23,9 +23,8 @@ dist
 *.sln
 *.sw?
 .env
-.env.*
+.env*
 .venv/
 backend/.venv/
 __pycache__/
 backend/__pycache__/
-backend

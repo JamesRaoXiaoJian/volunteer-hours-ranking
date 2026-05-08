@@ -47,6 +47,12 @@ def _add_cors_headers(response):
     return response
 
 
+@app.route("/", defaults={"path": ""}, methods=["OPTIONS"])
+@app.route("/<path:path>", methods=["OPTIONS"])
+def _preflight(path=""):
+    return "", 204
+
+
 @app.route("/api/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok"})

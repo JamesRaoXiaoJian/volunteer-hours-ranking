@@ -1,33 +1,20 @@
 import React, { useState } from 'react';
 import { Medal, Edit2, Trash2, Clock } from 'lucide-react';
 
-const TableRow = ({ teacher, index, onEdit, onDelete, onViewHistory, getMedalColor }) => {
+const RANK_CLASSES = ['gold', 'silver', 'bronze'];
+
+const TableRow = ({ teacher, index, onEdit, onDelete, onViewHistory }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const projects = Object.entries(teacher.projects || {});
   const displayProjects = isExpanded ? projects : projects.slice(0, 3);
+  const rankClass = index < 3 ? RANK_CLASSES[index] : 'default';
 
   return (
-    <tr 
-      style={{ 
-        borderBottom: '1px solid var(--border-color)',
-        transition: 'all 0.3s ease',
-      }}
-      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.03)'}
-      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-    >
+    <tr>
       <td style={{ padding: '1.25rem 1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span style={{ 
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            width: '32px', height: '32px', borderRadius: '10px',
-            background: index < 3 ? `${getMedalColor(index)}15` : 'var(--bg-app)',
-            color: index < 3 ? getMedalColor(index) : 'var(--text-secondary)',
-            fontWeight: '800',
-            fontSize: '0.9rem'
-          }}>
-            {index + 1}
-          </span>
-          {index < 3 && <Medal size={18} color={getMedalColor(index)} fill={getMedalColor(index)} fillOpacity={0.2} />}
+          <span className={`rank-badge ${rankClass}`}>{index + 1}</span>
+          {index < 3 && <Medal size={18} color={index === 0 ? '#fbbf24' : index === 1 ? '#94a3b8' : '#d97706'} fill={index === 0 ? '#fbbf24' : index === 1 ? '#94a3b8' : '#d97706'} fillOpacity={0.2} />}
         </div>
       </td>
       <td style={{ padding: '1.25rem 1.5rem' }}>
@@ -36,46 +23,10 @@ const TableRow = ({ teacher, index, onEdit, onDelete, onViewHistory, getMedalCol
       <td style={{ padding: '1.25rem 1.5rem' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', maxWidth: '450px' }}>
           {displayProjects.map(([p, h]) => (
-             <span key={p} style={{ 
-               display: 'inline-flex', 
-               alignItems: 'center',
-               backgroundColor: 'rgba(59, 130, 246, 0.06)', 
-               color: 'var(--primary)',
-               padding: '3px 8px', 
-               borderRadius: '6px', 
-               fontSize: '0.75rem',
-               fontWeight: '600',
-               border: '1px solid rgba(59, 130, 246, 0.1)',
-               whiteSpace: 'nowrap'
-             }}>
-               {p}: {h}h
-             </span>
+            <span key={p} className="project-tag">{p}: {h}h</span>
           ))}
           {projects.length > 3 && (
-            <button 
-              onClick={() => setIsExpanded(!isExpanded)}
-              style={{ 
-                border: 'none',
-                fontSize: '0.72rem', 
-                color: 'var(--primary)', 
-                background: 'var(--primary-light)', 
-                padding: '3px 10px', 
-                borderRadius: '6px',
-                fontWeight: '700',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                display: 'inline-flex',
-                alignItems: 'center'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = 'var(--primary)';
-                e.target.style.color = 'white';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = 'var(--primary-light)';
-                e.target.style.color = 'var(--primary)';
-              }}
-            >
+            <button className="expand-btn" onClick={() => setIsExpanded(!isExpanded)}>
               {isExpanded ? '收起' : `+ ${projects.length - 3} 更多`}
             </button>
           )}
@@ -83,28 +34,13 @@ const TableRow = ({ teacher, index, onEdit, onDelete, onViewHistory, getMedalCol
         </div>
       </td>
       <td style={{ padding: '1.25rem 1.5rem' }}>
-        <div style={{ 
-          display: 'inline-flex', 
-          alignItems: 'baseline', 
-          gap: '2px',
-          padding: '4px 12px',
-          background: 'var(--primary-light)',
-          borderRadius: '100px',
-          color: 'var(--primary)',
-          fontWeight: '800',
-          fontSize: '1.2rem'
-        }}>
-          {teacher.totalHours}<span style={{ fontSize: '0.75rem', fontWeight: '600', opacity: 0.7 }}>h</span>
+        <div className="total-pill">
+          {teacher.totalHours}<small>h</small>
         </div>
       </td>
       <td style={{ padding: '1.25rem 1.5rem', textAlign: 'right' }}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-          <button 
-            className="btn-icon" 
-            onClick={() => onViewHistory(teacher)} 
-            title="查看明细" 
-            style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}
-          >
+        <div className="action-group">
+          <button className="btn-icon" onClick={() => onViewHistory(teacher)} title="查看明细" style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}>
             <Clock size={16} />
           </button>
           <button className="btn-icon" onClick={() => onEdit(teacher)} title="编辑" style={{ background: 'var(--bg-app)', color: 'var(--text-secondary)' }}>
@@ -120,15 +56,6 @@ const TableRow = ({ teacher, index, onEdit, onDelete, onViewHistory, getMedalCol
 };
 
 export default function LeaderboardTable({ data, onEdit, onDelete, onViewHistory }) {
-  const getMedalColor = (index) => {
-    switch(index) {
-      case 0: return '#fbbf24'; // Gold
-      case 1: return '#94a3b8'; // Silver
-      case 2: return '#d97706'; // Bronze
-      default: return 'transparent';
-    }
-  };
-
   return (
     <div className="card animate-fade-in" style={{ overflow: 'hidden', border: 'none', background: 'rgba(255, 255, 255, 0.4)' }}>
       <div className="table-scroll" style={{ overflowX: 'auto' }}>
@@ -156,14 +83,13 @@ export default function LeaderboardTable({ data, onEdit, onDelete, onViewHistory
               </tr>
             ) : (
               data.map((teacher, index) => (
-                <TableRow 
-                  key={teacher.id} 
-                  teacher={teacher} 
-                  index={index} 
-                  onEdit={onEdit} 
-                  onDelete={onDelete} 
+                <TableRow
+                  key={teacher.id}
+                  teacher={teacher}
+                  index={index}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
                   onViewHistory={onViewHistory}
-                  getMedalColor={getMedalColor}
                 />
               ))
             )}

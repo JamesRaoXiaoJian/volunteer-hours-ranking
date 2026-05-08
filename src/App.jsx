@@ -6,7 +6,7 @@ import VolunteerChart from './components/VolunteerChart';
 import TeacherFormModal from './components/TeacherFormModal';
 import HistoryModal from './components/HistoryModal';
 import RecentUpdates from './components/RecentUpdates';
-import { getTeachersData, saveTeachersData, getAllProjectNames, calculateTotal, addChangelogEntry } from './utils/storage';
+import { getTeachersData, saveTeachersData, getAllProjectNames, calculateTotal, addChangelogEntry, recalculateProjects } from './utils/storage';
 import { Plus } from 'lucide-react';
 
 function App() {
@@ -46,7 +46,7 @@ function App() {
   const projectNames = useMemo(() => getAllProjectNames(teachers), [teachers]);
 
   const processedData = useMemo(() => {
-    const filtered = teachers.filter(t => 
+    const filtered = teachers.filter(t =>
       t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       Object.keys(t.projects || {}).some(p => p.toLowerCase().includes(searchQuery.toLowerCase()))
     );
@@ -75,9 +75,9 @@ function App() {
 
   const onEditEntry = (entry, teacher) => {
     setEditingEntry({ ...entry, originalTeacherId: teacher.id });
-    setEditingTeacher({ name: teacher.name }); // Pre-fill teacher name
+    setEditingTeacher({ name: teacher.name });
     setIsModalOpen(true);
-    setSelectedTeacherHistory(null); // Close history view
+    setSelectedTeacherHistory(null);
   };
 
   const onDeleteEntry = (entry, teacher) => {
@@ -86,11 +86,7 @@ function App() {
     const updatedTeachers = teachers.map(t => {
       if (t.id === teacher.id) {
         const newHistory = (t.history || []).filter(e => e.timestamp !== entry.timestamp);
-        const newProjects = {};
-        newHistory.forEach(h => {
-          newProjects[h.project] = Math.round(((newProjects[h.project] || 0) + h.hours) * 100) / 100;
-        });
-        return { ...t, history: newHistory, projects: newProjects };
+        return { ...t, history: newHistory, projects: recalculateProjects(newHistory) };
       }
       return t;
     }).filter(t => Object.keys(t.projects).length > 0 || t.history?.length > 0);
@@ -112,27 +108,19 @@ function App() {
     if (selectedNames.length === 0) {
       return;
     }
-    
+
     let newTeachers = [...teachers];
 
-    // Case 1: Editing a specific entry (may involve moving to a different teacher)
     if (editingEntry) {
       const originalTeacherIndex = newTeachers.findIndex(t => t.id === editingEntry.originalTeacherId);
       if (originalTeacherIndex > -1) {
         const originalTeacher = { ...newTeachers[originalTeacherIndex] };
         originalTeacher.history = (originalTeacher.history || []).filter(e => e.timestamp !== editingEntry.timestamp);
-        
-        // Recalculate original teacher's project summary
-        const newProjects = {};
-        originalTeacher.history.forEach(h => {
-          newProjects[h.project] = (newProjects[h.project] || 0) + h.hours;
-        });
-        originalTeacher.projects = newProjects;
+        originalTeacher.projects = recalculateProjects(originalTeacher.history);
         newTeachers[originalTeacherIndex] = originalTeacher;
       }
     }
 
-    // Now insert the record (either new or edited) to the target teacher(s)
     const timestampBase = editingEntry ? editingEntry.timestamp : new Date().getTime();
     selectedNames.forEach((selectedName, idx) => {
       const targetIndex = newTeachers.findIndex(t => t.name.trim() === selectedName);
@@ -146,13 +134,7 @@ function App() {
           timestamp: editingEntry ? timestampBase : timestampBase + idx
         };
         teacher.history = [...(teacher.history || []), historyEntry];
-        
-        // Recalculate project totals with precision protection
-        const newProjects = {};
-        teacher.history.forEach(h => {
-          newProjects[h.project] = Math.round(((newProjects[h.project] || 0) + h.hours) * 100) / 100;
-        });
-        teacher.projects = newProjects;
+        teacher.projects = recalculateProjects(teacher.history);
         newTeachers[targetIndex] = teacher;
       } else {
         const newTeacher = {
@@ -170,7 +152,6 @@ function App() {
       }
     });
 
-    // Clean up empty teachers (if their last entry was moved or deleted)
     newTeachers = newTeachers.filter(t => Object.keys(t.projects).length > 0 || t.history?.length > 0);
 
     setTeachers(newTeachers);
@@ -207,17 +188,17 @@ function App() {
       <div className="aspect-ratio-container">
         <div className="content-scrollable">
           <Header />
-          
-          <div className="toolbar-row" style={{ display: 'flex', gap: '1.5rem', marginBottom: '2.5rem', alignItems: 'center' }}>
+
+          <div className="toolbar">
             <div style={{ flex: 1 }}>
               <SearchBar value={searchQuery} onChange={setSearchQuery} />
             </div>
-            <button className="btn btn-primary" onClick={handleAddClick} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.5rem' }}>
+            <button className="btn btn-primary add-btn" onClick={handleAddClick}>
               <Plus size={20} /> 录入记录
             </button>
           </div>
 
-          <div className="card" style={{ padding: '2rem', background: 'rgba(255, 255, 255, 0.4)', marginBottom: '2.5rem' }}>
+          <div className="card chart-card">
             <VolunteerChart data={processedData} projectNames={projectNames} />
           </div>
 
@@ -229,16 +210,16 @@ function App() {
           />
 
           <RecentUpdates key={changelogKey} />
-          
-          <footer style={{ marginTop: '4rem', textAlign: 'center', paddingBottom: '2rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+
+          <footer className="app-footer">
             © 2026 志愿者管理系统 · 记录每一份教育之光
           </footer>
         </div>
       </div>
 
-      <TeacherFormModal 
-        isOpen={isModalOpen} 
-        onClose={() => { setIsModalOpen(false); setEditingEntry(null); }} 
+      <TeacherFormModal
+        isOpen={isModalOpen}
+        onClose={() => { setIsModalOpen(false); setEditingEntry(null); }}
         onSubmit={handleModalSubmit}
         initialData={editingTeacher}
         projectNames={projectNames}
@@ -246,7 +227,7 @@ function App() {
         isEditingEntry={!!editingEntry}
       />
 
-      <HistoryModal 
+      <HistoryModal
         isOpen={!!selectedTeacherHistory}
         onClose={() => setSelectedTeacherHistory(null)}
         teacher={selectedTeacherHistory}
