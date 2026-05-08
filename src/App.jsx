@@ -212,7 +212,7 @@ function App() {
           <RecentUpdates key={changelogKey} />
 
           <footer className="app-footer">
-            © 2026 志愿者管理系统 · 记录每一份教育之光
+            © 2026 教师服务管理系统 · 记录每一份教育之光
           </footer>
         </div>
       </div>

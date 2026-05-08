@@ -1,16 +1,20 @@
-# React + Vite
+# 教师服务时长榜单
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[在线访问](https://jamesraoxiaojian.github.io/volunteer-hours-ranking/)
 
-Currently, two official plugins are available:
+教师服务时长管理系统，用于记录和展示教师参与各类服务项目的时长排行。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 功能
 
-## React Compiler
+- 服务时长录入（支持批量选择教师、自动计算时长）
+- 排行榜展示（按总时长排序，奖牌标识前三名）
+- 分项目堆叠柱状图
+- 个人服务明细查看与编辑
+- 最近更新记录
+- 响应式设计，支持移动端
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 技术栈
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **前端**: React 19 + Vite + Recharts
+- **后端**: Flask (Python)，JSON 文件存储
+- **部署**: GitHub Pages (gh-pages) + Caddy 反向代理

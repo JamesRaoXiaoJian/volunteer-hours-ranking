@@ -19,7 +19,7 @@ export default function Header() {
         marginBottom: '2rem',
         border: '1px solid rgba(59, 130, 246, 0.1)'
       }}>
-        <span style={{ fontSize: '1rem' }}>💡</span> VOLUNTEER HONOR ROLL
+        <span style={{ fontSize: '1rem' }}>💡</span> SERVICE HONOR ROLL
       </div>
       
       <div className="header-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
