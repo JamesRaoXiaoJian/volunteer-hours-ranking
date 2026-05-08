@@ -51,8 +51,20 @@ export default React.memo(function VolunteerChart({ data, projectNames }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const id = requestAnimationFrame(() => setReady(true));
-    return () => cancelAnimationFrame(id);
+    const el = containerRef.current;
+    if (!el) return;
+    if (el.offsetWidth > 0 && el.offsetHeight > 0) {
+      setReady(true);
+      return;
+    }
+    const obs = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+        setReady(true);
+        obs.disconnect();
+      }
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
   }, []);
 
   const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
