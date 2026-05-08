@@ -228,9 +228,7 @@ function App() {
           <Header />
 
           <div className="toolbar">
-            <div style={{ flex: 1 }}>
-              <SearchBar value={searchQuery} onChange={setSearchQuery} />
-            </div>
+            <div style={{ flex: 1 }}></div>
             <button className="btn btn-primary add-btn" onClick={handleAddClick}>
               <Plus size={20} /> 录入记录
             </button>
