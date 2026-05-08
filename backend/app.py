@@ -9,6 +9,7 @@ from uuid import uuid4
 from flask import Flask, jsonify, request
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), "teachers.json")
+CHANGELOG_FILE = os.path.join(os.path.dirname(__file__), "changelog.json")
 DATA_LOCK = threading.Lock()
 
 app = Flask(__name__)
@@ -66,6 +67,42 @@ def save_teachers():
 
     with DATA_LOCK:
         _save_data(payload)
+
+    return jsonify({"status": "ok"})
+
+
+def _load_changelog() -> list:
+    if not os.path.exists(CHANGELOG_FILE):
+        return []
+    with open(CHANGELOG_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _save_changelog(data: list) -> None:
+    with open(CHANGELOG_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+@app.route("/api/changelog", methods=["GET"])
+def get_changelog():
+    with DATA_LOCK:
+        entries = _load_changelog()
+    return jsonify(entries)
+
+
+@app.route("/api/changelog", methods=["POST"])
+def add_changelog():
+    entry = request.get_json(silent=True)
+    if not isinstance(entry, dict) or "action" not in entry:
+        return jsonify({"error": "invalid_entry"}), 400
+
+    entry.setdefault("id", str(uuid4()))
+    entry.setdefault("timestamp", _now_iso())
+
+    with DATA_LOCK:
+        log = _load_changelog()
+        log.append(entry)
+        _save_changelog(log)
 
     return jsonify({"status": "ok"})
 

@@ -72,10 +72,10 @@ export const saveTeachersData = async (data) => {
 
 export const getAllProjectNames = (data) => {
   const projectNames = new Set([
-    '硕士复试', '调剂复试名单遴选', '硕士调剂复试', '培养方案和品牌专业讨论', 
+    '硕士复试', '调剂复试名单遴选', '硕士调剂复试', '培养方案和品牌专业讨论',
     '学院十五五规划讨论', '人机协作观摩课', '中心建设会议', '本科转专业面试'
   ]);
-  
+
   if (Array.isArray(data)) {
     data.forEach(teacher => {
       if (teacher.projects) {
@@ -87,4 +87,26 @@ export const getAllProjectNames = (data) => {
     });
   }
   return Array.from(projectNames);
+};
+
+export const getChangelog = async () => {
+  try {
+    const response = await fetch(`${API_BASE}/api/changelog`);
+    if (!response.ok) return [];
+    return await response.json();
+  } catch {
+    return [];
+  }
+};
+
+export const addChangelogEntry = async (entry) => {
+  try {
+    await fetch(`${API_BASE}/api/changelog`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry)
+    });
+  } catch (error) {
+    console.error('Failed to record changelog.', error);
+  }
 };
