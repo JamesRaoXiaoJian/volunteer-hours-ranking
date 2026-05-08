@@ -28,3 +28,8 @@ dist
 backend/.venv/
 __pycache__/
 backend/__pycache__/
+
+# Backend runtime data (server-side, not for git)
+backend/teachers.json
+backend/projects.json
+backend/changelog.json

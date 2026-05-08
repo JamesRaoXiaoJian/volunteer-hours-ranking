@@ -86,7 +86,7 @@ function App() {
         return { ...t, history: newHistory, projects: recalculateProjects(newHistory) };
       }
       return t;
-    }).filter(t => Object.keys(t.projects).length > 0 || t.history?.length > 0);
+    });
 
     setTeachers(updatedTeachers);
     if (selectedTeacherHistory?.id === teacher.id) {
@@ -146,8 +146,6 @@ function App() {
         newTeachers.push(newTeacher);
       }
     });
-
-    newTeachers = newTeachers.filter(t => Object.keys(t.projects).length > 0 || t.history?.length > 0);
 
     setTeachers(newTeachers);
     setIsModalOpen(false);
@@ -213,7 +211,7 @@ function App() {
       const newHistory = (t.history || []).filter(h => h.project !== name);
       const newProjects = recalculateProjects(newHistory);
       return { ...t, history: newHistory, projects: newProjects };
-    }).filter(t => Object.keys(t.projects).length > 0 || t.history?.length > 0);
+    });
 
     setTeachers(updatedTeachers);
     addChangelogEntry({ action: 'delete', description: `删除了项目「${name}」` });
