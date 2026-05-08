@@ -1,6 +1,5 @@
 import React from 'react';
 import logo from '../figures/logo.jpg';
-import { Sparkles } from 'lucide-react';
 
 export default function Header() {
   return (

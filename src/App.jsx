@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
 import LeaderboardTable from './components/LeaderboardTable';
@@ -8,6 +8,14 @@ import HistoryModal from './components/HistoryModal';
 import RecentUpdates from './components/RecentUpdates';
 import { getTeachersData, saveTeachersData, getAllProjectNames, calculateTotal, addChangelogEntry, recalculateProjects, getProjects, saveProjects } from './utils/storage';
 import { Plus } from 'lucide-react';
+
+function useDebouncedSave(fn, ms = 500) {
+  const timer = useRef(null);
+  return useCallback((data) => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => fn(data), ms);
+  }, [fn, ms]);
+}
 
 function App() {
   const [teachers, setTeachers] = useState([]);
@@ -35,10 +43,12 @@ function App() {
     return () => { isActive = false; };
   }, []);
 
+  const debouncedSave = useMemo(() => useDebouncedSave(saveTeachersData), []);
+
   useEffect(() => {
     if (!isLoaded) return;
-    saveTeachersData(teachers);
-  }, [teachers, isLoaded]);
+    debouncedSave(teachers);
+  }, [teachers, isLoaded, debouncedSave]);
 
   const projectNames = useMemo(() => getAllProjectNames(teachers, serverProjects), [teachers, serverProjects]);
 
