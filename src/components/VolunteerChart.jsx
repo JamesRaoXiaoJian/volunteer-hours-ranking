@@ -73,10 +73,18 @@ export default React.memo(function VolunteerChart({ data, projectNames }) {
     <div ref={containerRef} className="chart-container">
       {ready && (
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 10, right: 0, left: -10, bottom: 0 }}>
+          <BarChart data={data} margin={{ top: 10, right: 0, left: -10, bottom: 30 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.04)" />
-            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--text-secondary)', fontSize: 12, fontWeight: 500 }} />
-            <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--text-secondary)', fontSize: 12, fontWeight: 500 }} />
+            <XAxis
+              dataKey="name"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: 'var(--text-secondary)', fontSize: 11, fontWeight: 500 }}
+              interval={0}
+              angle={-35}
+              textAnchor="end"
+            />
+            <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--text-secondary)', fontSize: 11, fontWeight: 500 }} />
             <Tooltip cursor={{ fill: 'rgba(59, 130, 246, 0.04)' }} content={<CustomTooltip />} />
             <Legend content={renderLegend} />
             {projectNames.map((project, index) => (
